@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.appsys.dao.BackendUser.BackendUserMapper">
+	<select id="getUser" resultType="BackendUser">
+		select * from backend_user where
+		userCode=#{Username} and userPassword=#{Password}
+	</select>
+
+	<select id="list" resultType="Appinfo">
+		SELECT *,
+		(SELECT valueName FROM
+		data_dictionary d WHERE
+		info.flatformId=d.valueId and
+		d.typeCode='APP_FLATFORM') AS
+		flatformName,
+		(SELECT categoryName FROM
+		app_category a where
+		a.id=info.categoryLevel1)AS
+		categoryLevel1Name,
+		(SELECT categoryName
+		FROM app_category a where
+		a.id=info.categoryLevel2)AS
+		categoryLevel2Name,
+		(SELECT categoryName
+		FROM app_category a where
+		a.id=info.categoryLevel3)AS
+		categoryLevel3Name,
+		(SELECT valueName FROM
+		data_dictionary d WHERE
+		info.`status`=d.valueId and
+		d.typeCode='APP_STATUS') AS
+		statusName,downloads,
+		(SELECT versionNo FROM
+		app_version a WHERE
+		a.id=info.versionId) AS versionNo
+		FROM app_info as
+		info
+		<where>
+			<if test="appname !=null">
+				and softwareName like CONCAT('%',#{appname},'%')
+			</if>
+			<if test="appstatic !=0">
+				and status=#{appstatic}
+			</if>
+			<if test="FlatformId !=0">
+				and flatformId=#{FlatformId}
+			</if>
+			<if test="CategoryLevel1 !=0">
+				and categoryLevel1=#{CategoryLevel1}
+			</if>
+			<if test="level2list !=0">
+				and categoryLevel2=#{level2list}
+			</if>
+			<if test="CategoryLevel3 !=0">
+				and categoryLevel3=#{CategoryLevel3}
+			</if>
+		</where>
+		LIMIT #{pageindex},#{pageSize}
+	</select>
+
+	<select id="count" resultType="int">
+		select count(1) from app_info
+		<where>
+			<if test="appname !=null">
+				and softwareName=#{appname}
+			</if>
+			<if test="appstatic !=0">
+				and status=#{appstatic}
+			</if>
+			<if test="FlatformId !=0">
+				and flatformId=#{FlatformId}
+			</if>
+			<if test="CategoryLevel1 !=0">
+				and categoryLevel1=#{CategoryLevel1}
+			</if>
+			<if test="level2list !=0">
+				and categoryLevel2=#{level2list}
+			</if>
+			<if test="CategoryLevel3 !=0">
+				and categoryLevel3=#{CategoryLevel3}
+			</if>
+		</where>
+	</select>
+
+	<select id="statuslist" resultType="DataDictionary">
+		select * from data_dictionary
+		where typeCode='APP_STATUS'
+	</select>
+
+	<select id="flatform" resultType="DataDictionary">
+		select * from data_dictionary
+		where typeCode='APP_FLATFORM'
+	</select>
+
+	<select id="Categorylist1" resultType="AppCategory">
+		select * from app_category
+		LIMIT 2
+	</select>
+
+	<select id="Categorylist2" resultType="AppCategory">
+		select * from app_category
+		where parentId=#{id}
+	</select>
+
+	<select id="Categorylist3" resultType="AppCategory">
+		select * from app_category
+		where parentId=#{id}
+	</select>
+	
+	<select id="viewapp" resultType="AppInfo">
+	    	SELECT *,
+		(SELECT valueName FROM
+		data_dictionary d WHERE
+		info.flatformId=d.valueId and
+		d.typeCode='APP_FLATFORM') AS
+		flatformName,
+		(SELECT categoryName FROM
+		app_category a where
+		a.id=info.categoryLevel1)AS
+		categoryLevel1Name,
+		(SELECT categoryName
+		FROM app_category a where
+		a.id=info.categoryLevel2)AS
+		categoryLevel2Name,
+		(SELECT categoryName
+		FROM app_category a where
+		a.id=info.categoryLevel3)AS
+		categoryLevel3Name,
+		(SELECT valueName FROM
+		data_dictionary d WHERE
+		info.`status`=d.valueId and
+		d.typeCode='APP_STATUS') AS
+		statusName,downloads,
+		(SELECT versionNo FROM
+		app_version a WHERE
+		a.id=info.versionId) AS versionNo
+		FROM app_info as
+		info where info.id=#{id}
+	</select>
+	
+	<select id="selectversion" resultType="AppVersion">
+		select * from app_version
+		where id=#{id}
+	</select>
+	
+	<update id="updatesh">
+	  update app_info set  status=#{statusid}  where id=#{id}
+	</update>
+</mapper>
